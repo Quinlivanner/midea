@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
         ignoreBuildErrors: true,
     },
     reactStrictMode: false,
+    // 添加重定向配置
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/business',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 export default nextConfig;
