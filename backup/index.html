@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自動報價計算系統</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .section-title {
+            border-bottom: 2px solid #0d6efd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #0d6efd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        .quantity-input {
+            width: 60px;
+            margin-left: 10px;
+        }
+        .result-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .result-table th {
+            background-color: #f1f8ff;
+        }
+        .size-info {
+            background-color: #e9f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .btn-calculate {
+            background-color: #0d6efd;
+            color: white;
+            padding: 10px 30px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .discount-options {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .discount-value {
+            width: 100px;
+        }
+        @media (max-width: 768px) {
+            .calculator-container {
+                padding: 15px;
+            }
+            .checkbox-group {
+                flex-direction: column;
+            }
+            .discount-options {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1 class="text-center mb-4">自動報價計算系統</h1>
+        
+        <!-- 基本參數區 -->
+        <div class="mb-4">
+            <h3 class="section-title">基本參數</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="elevatorType" class="form-label">梯型</label>
+                        <select id="elevatorType" class="form-select">
+                            <option value="">請選擇梯型</option>
+                            <option value="EVIN">EVIN</option>
+                            <option value="EVIK">EVIK</option>
+                            <option value="LTHX">LTHX (貨梯)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="loadSpeed" class="form-label">載重/速度</label>
+                        <select id="loadSpeed" class="form-select">
+                            <option value="">請先選擇梯型</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="floors" class="form-label">層數</label>
+                        <input type="number" id="floors" class="form-control" min="2" value="2">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="stops" class="form-label">站數</label>
+                        <input type="number" id="stops" class="form-control" min="2" value="2">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="doors" class="form-label">門數</label>
+                        <input type="number" id="doors" class="form-control" min="2" value="2">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="liftHeight" class="form-label">提升高度 (mm)</label>
+                        <input type="number" id="liftHeight" class="form-control" min="0" value="3000">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 門與材質區 -->
+        <div class="mb-4">
+            <h3 class="section-title">門與材質</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="doorSize" class="form-label">門尺寸/開門方式</label>
+                        <select id="doorSize" class="form-select">
+                            <option value="800*2100(CO)">800*2100(CO)</option>
+                            <option value="900*2100(CO)">900*2100(CO)</option>
+                            <option value="1000*2100(CO)">1000*2100(CO)</option>
+                            <option value="1100*2100(CO)">1100*2100(CO)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="carDoorMaterial" class="form-label">轎門材質</label>
+                        <select id="carDoorMaterial" class="form-select">
+                            <option value="發紋不銹鋼">發紋不銹鋼</option>
+                            <option value="鏡面不銹鋼">鏡面不銹鋼</option>
+                            <option value="噴塑">噴塑</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="firstFloorDoorMaterial" class="form-label">首層層門材質</label>
+                        <select id="firstFloorDoorMaterial" class="form-select">
+                            <option value="發紋不銹鋼">發紋不銹鋼</option>
+                            <option value="鏡面不銹鋼">鏡面不銹鋼</option>
+                            <option value="噴塑">噴塑</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="otherFloorDoorMaterial" class="form-label">其他層門材質</label>
+                        <select id="otherFloorDoorMaterial" class="form-select">
+                            <option value="發紋不銹鋼">發紋不銹鋼</option>
+                            <option value="鏡面不銹鋼">鏡面不銹鋼</option>
+                            <option value="噴塑">噴塑</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 選配項目區 -->
+        <div class="mb-4">
+            <h3 class="section-title">選配項目</h3>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="emergency" class="form-check-input">
+                    <label for="emergency" class="form-check-label">停電應急</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="russianPackage" class="form-check-input">
+                    <label for="russianPackage" class="form-check-label">俄羅斯包</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="fireCarDoor" class="form-check-input">
+                    <label for="fireCarDoor" class="form-check-label">防火轎門</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="fireFloorDoor" class="form-check-input">
+                    <label for="fireFloorDoor" class="form-check-label">防火層門</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="mirror" class="form-check-input">
+                    <label for="mirror" class="form-check-label">鏡子</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="arrivalBell" class="form-check-input">
+                    <label for="arrivalBell" class="form-check-label">到站鐘</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="handrail" class="form-check-input">
+                    <label for="handrail" class="form-check-label">扶手</label>
+                    <input type="number" id="handrailCount" class="form-control quantity-input" min="1" value="1" disabled>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="guard" class="form-check-input">
+                    <label for="guard" class="form-check-label">護欄</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="fireFunction" class="form-check-input">
+                    <label for="fireFunction" class="form-check-label">消防功能</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="safetyWindow" class="form-check-input">
+                    <label for="safetyWindow" class="form-check-label">安全窗</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 折扣設定區 -->
+        <div class="mb-4">
+            <h3 class="section-title">折扣設定</h3>
+            <div class="discount-options">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="discountType" id="percentDiscount" value="percent" checked>
+                    <label class="form-check-label" for="percentDiscount">
+                        百分比折扣
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="discountType" id="fixedDiscount" value="fixed">
+                    <label class="form-check-label" for="fixedDiscount">
+                        固定金額折扣
+                    </label>
+                </div>
+                <div>
+                    <input type="number" id="discountValue" class="form-control discount-value" min="0" max="100" step="0.01" value="0">
+                    <span id="discountUnit">%</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 台數設定區 -->
+        <div class="mb-4">
+            <h3 class="section-title">台數設定</h3>
+            <div class="form-group">
+                <label for="quantity" class="form-label">台數</label>
+                <input type="number" id="quantity" class="form-control" min="1" value="1" style="max-width: 200px;">
+            </div>
+        </div>
+        
+        <!-- 計算按鈕 -->
+        <div class="text-center mb-4">
+            <button id="calculateBtn" class="btn btn-calculate">計算報價</button>
+        </div>
+        
+        <!-- 計算結果區 -->
+        <div id="resultSection" class="mb-4" style="display: none;">
+            <h3 class="section-title">計算結果</h3>
+            
+            <!-- 標準尺寸提示 -->
+            <div class="size-info">
+                <h5>標準尺寸參考</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>井道尺寸：</strong> <span id="shaftSize">-</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>轎廂尺寸：</strong> <span id="carSize">-</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 價格明細表 -->
+            <table class="table table-bordered result-table mt-4">
+                <thead>
+                    <tr>
+                        <th>項目</th>
+                        <th>金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>基價</td>
+                        <td id="basePrice">-</td>
+                    </tr>
+                    <tr>
+                        <td>加層費用</td>
+                        <td id="extraLayerPrice">-</td>
+                    </tr>
+                    <tr class="table-primary">
+                        <td><strong>基礎小計</strong></td>
+                        <td id="basicTotal">-</td>
+                    </tr>
+                    <tr>
+                        <td>基礎折扣</td>
+                        <td id="basicDiscount">-</td>
+                    </tr>
+                    <tr class="table-info">
+                        <td><strong>基礎折後價</strong></td>
+                        <td id="basicNet">-</td>
+                    </tr>
+                    <!-- 選配項目明細 -->
+                    <tr>
+                        <td colspan="2" class="bg-light"><strong>選配項目</strong></td>
+                    </tr>
+                    <tr id="emergencyRow" style="display: none;">
+                        <td>停電應急</td>
+                        <td id="emergencyPrice">-</td>
+                    </tr>
+                    <tr id="russianPackageRow" style="display: none;">
+                        <td>俄羅斯包</td>
+                        <td id="russianPackagePrice">-</td>
+                    </tr>
+                    <tr id="fireCarDoorRow" style="display: none;">
+                        <td>防火轎門</td>
+                        <td id="fireCarDoorPrice">-</td>
+                    </tr>
+                    <tr id="fireFloorDoorRow" style="display: none;">
+                        <td>防火層門</td>
+                        <td id="fireFloorDoorPrice">-</td>
+                    </tr>
+                    <tr id="mirrorRow" style="display: none;">
+                        <td>鏡子</td>
+                        <td id="mirrorPrice">-</td>
+                    </tr>
+                    <tr id="arrivalBellRow" style="display: none;">
+                        <td>到站鐘</td>
+                        <td id="arrivalBellPrice">-</td>
+                    </tr>
+                    <tr id="handrailRow" style="display: none;">
+                        <td>扶手</td>
+                        <td id="handrailPrice">-</td>
+                    </tr>
+                    <tr id="guardRow" style="display: none;">
+                        <td>護欄</td>
+                        <td id="guardPrice">-</td>
+                    </tr>
+                    <tr id="fireFunctionRow" style="display: none;">
+                        <td>消防功能</td>
+                        <td id="fireFunctionPrice">-</td>
+                    </tr>
+                    <tr id="safetyWindowRow" style="display: none;">
+                        <td>安全窗</td>
+                        <td id="safetyWindowPrice">-</td>
+                    </tr>
+                    <tr id="shaftHeightRow" style="display: none;">
+                        <td>井道超高</td>
+                        <td id="shaftHeightPrice">-</td>
+                    </tr>
+                    <tr class="table-primary">
+                        <td><strong>選配小計</strong></td>
+                        <td id="optionsTotal">-</td>
+                    </tr>
+                    <tr>
+                        <td>選配折扣</td>
+                        <td id="optionsDiscount">-</td>
+                    </tr>
+                    <tr class="table-info">
+                        <td><strong>選配折後價</strong></td>
+                        <td id="optionsNet">-</td>
+                    </tr>
+                    <tr class="table-success">
+                        <td><strong>單台總價</strong></td>
+                        <td id="unitTotal">-</td>
+                    </tr>
+                    <tr class="table-danger">
+                        <td><strong>項目總價 (台數: <span id="quantityDisplay">1</span>)</strong></td>
+                        <td id="grandTotal">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="pricing_data.js"></script>
+    <script src="calculator.js"></script>
+</body>
+</html>
